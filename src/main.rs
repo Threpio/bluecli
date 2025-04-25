@@ -1,9 +1,9 @@
-mod subscriptions;
 mod authentication;
+mod subscriptions;
 
 use azure_core::credentials::TokenCredential;
 use azure_identity::DefaultAzureCredential;
-use clap::{Command};
+use clap::Command;
 use std::sync::Arc;
 
 #[tokio::main]
@@ -45,7 +45,7 @@ async fn main() {
             subscriptions::get_subscriptions(access_token.clone()).await;
         }
         Some(("codelogin", _)) => {
-            authentication::auth().await.expect("auth");
+            authentication::azure::code_auth().await.expect("auth");
         }
         Some(("sync", sync_matches)) => {
             if sync_matches.contains_id("search") {
