@@ -1,8 +1,9 @@
 mod subscriptions;
+mod authentication;
 
 use azure_core::credentials::TokenCredential;
 use azure_identity::DefaultAzureCredential;
-use clap::{Arg, ArgAction, Command};
+use clap::{Command};
 use std::sync::Arc;
 
 #[tokio::main]
@@ -20,11 +21,16 @@ async fn main() {
                 .long_flag("login")
                 .about("trigger the oath login flow"),
         )
+        .subcommand(
+            Command::new("codelogin")
+                .long_flag("codelogin")
+                .about("trigger the code login flow"),
+        )
         .get_matches();
 
     match matches.subcommand() {
         Some(("login", _)) => {
-            let subscription_id =
+            let _subscription_id =
                 std::env::var("AZURE_SUBSCRIPTION_ID").expect("AZURE_SUBSCRIPTION_ID required");
 
             let credential = DefaultAzureCredential::new()
@@ -37,6 +43,9 @@ async fn main() {
                 .expect("get token");
 
             subscriptions::get_subscriptions(access_token.clone()).await;
+        }
+        Some(("codelogin", _)) => {
+            authentication::auth().await.expect("auth");
         }
         Some(("sync", sync_matches)) => {
             if sync_matches.contains_id("search") {
