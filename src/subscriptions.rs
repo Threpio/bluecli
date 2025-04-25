@@ -14,7 +14,6 @@ struct Subscription {
 // get_subscriptions function takes an AccessToken as an argument
 // It generates the URL and parses the response in a very crude manner
 pub(crate) async fn get_subscriptions(access_token: AccessToken) {
-
     let url = url::Url::parse("https://management.azure.com/subscriptions?api-version=2022-12-01")
         .expect("url parse");
 
@@ -31,8 +30,8 @@ pub(crate) async fn get_subscriptions(access_token: AccessToken) {
         .await
         .expect("text");
 
-    let subs: Subscriptions = serde_json::from_str(&response)
-        .expect("deserialize subscriptions failure");
+    let subs: Subscriptions =
+        serde_json::from_str(&response).expect("deserialize subscriptions failure");
     println!("Subscriptions:");
     for sub in subs.value {
         println!("{}", sub.subscriptionId);
