@@ -26,7 +26,13 @@ async fn main() {
                 .long_flag("codelogin")
                 .about("trigger the code login flow"),
         )
+        .subcommand(
+            Command::new("subscriptions")
+                .long_flag("subscriptions")
+                .about("list all subscriptions"),
+        )
         .get_matches();
+
 
     match matches.subcommand() {
         Some(("login", _)) => {
@@ -46,6 +52,19 @@ async fn main() {
         }
         Some(("codelogin", _)) => {
             authentication::azure::code_auth().await.expect("auth");
+        }
+        Some(("subscriptions", _)) => {
+
+            let credential = DefaultAzureCredential::new()
+                .map(Arc::new)
+                .expect("DefaultAzureCredential::new");
+
+            let access_token = credential
+                .get_token(&["https://management.azure.com/.default"])
+                .await
+                .expect("get token");
+
+            subscriptions::get_subscriptions(access_token.clone()).await;
         }
         Some(("sync", sync_matches)) => {
             if sync_matches.contains_id("search") {

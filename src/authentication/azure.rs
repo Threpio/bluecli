@@ -4,6 +4,8 @@ use oauth2::{
 };
 use reqwest::Client;
 use tokio::time::sleep;
+use azure_core::credentials;
+use crate::authentication::cache;
 
 pub async fn code_auth() -> anyhow::Result<()> {
     // Use Microsoft's public Azure CLI client ID
@@ -41,9 +43,22 @@ pub async fn code_auth() -> anyhow::Result<()> {
         .await?;
 
     println!("Access token: {}", token.access_token().secret());
+    
 
     //println!("\n✅ Access token received!");
     //println!("Access token: {}", token.access_token().secret());
+    
+    // Cache token
+    let token_cache = cache::TokenCache::new();
+    
+    token_cache
+        .0
+        .write()
+        .await
+        .insert(
+            vec!["https://management.azure.com/.default".to_string()],
+            token.access_token().clone(),
+        );
 
     Ok(())
 }
